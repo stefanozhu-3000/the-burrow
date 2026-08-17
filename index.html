@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A scroll-driven visit to The Burrow, a home full of magic and mischief."
+    />
+    <meta name="theme-color" content="#2f83bb" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+    <title>The Burrow — A Home Full of Magic</title>
+  </head>
+  <body>
+    <main id="home" class="story" aria-label="The Burrow scroll story">
+      <div class="scene" id="scene">
+        <div class="backdrop" aria-hidden="true"></div>
+        <div class="vignette" aria-hidden="true"></div>
+
+        <header class="site-header">
+          <a class="brand" href="#home" aria-label="The Burrow, back to the beginning">
+            <img class="brand-logo" src="/the-burrow-logo.png" alt="" />
+          </a>
+
+          <nav aria-label="Main navigation">
+            <a href="#home">Home</a>
+            <a href="#weasleys">The Whistler</a>
+            <a href="#visit">Visit</a>
+          </nav>
+        </header>
+
+        <section class="hero-copy" aria-labelledby="hero-title">
+          <span class="hero-star star-one" aria-hidden="true">✦</span>
+          <span class="hero-star star-two" aria-hidden="true">✦</span>
+          <span class="hero-star star-three" aria-hidden="true">✦</span>
+          <span class="hero-star star-four" aria-hidden="true">✦</span>
+          <h1 id="hero-title">Welcome Home</h1>
+          <span class="title-flourish" aria-hidden="true"></span>
+        </section>
+
+        <div class="model-wrap" aria-label="Three-dimensional model of The Burrow">
+          <canvas id="burrow-canvas"></canvas>
+          <div class="model-loader" role="status" aria-live="polite">
+            <span class="loader-star">✦</span>
+            <span class="loader-copy">Summoning The Burrow…</span>
+            <span class="loader-track"><i></i></span>
+          </div>
+          <p class="model-error" hidden>The house is being a little temperamental.</p>
+        </div>
+
+        <div class="flying-props" aria-label="Magical objects from the Weasley family story">
+          <button
+            class="flying-prop flying-car"
+            type="button"
+            data-tooltip-title="The Flying Ford Anglia"
+            data-tooltip-story="Arthur Weasley enchanted this sky-blue car. It once carried two young wizards above the clouds—and straight into trouble."
+            aria-label="Learn about the Flying Ford Anglia"
+          >
+            <img src="/flying-car.png" alt="" />
+          </button>
+          <button
+            class="flying-prop flying-letter"
+            type="button"
+            data-tooltip-title="Molly's Letter"
+            data-tooltip-story="A letter from home, sealed with warmth, worry, and the unmistakable feeling that Molly already knows everything."
+            aria-label="Learn about Molly's letter"
+          >
+            <img src="/flying-letter.png" alt="" />
+          </button>
+          <button
+            class="flying-prop flying-owl"
+            type="button"
+            data-tooltip-title="The Evening Owl"
+            data-tooltip-story="A faithful post owl crossing the sunset, carrying news to the crooked house at the edge of the meadow."
+            aria-label="Learn about the evening owl"
+          >
+            <img src="/flying-owl.png" alt="" />
+          </button>
+        </div>
+
+        <aside class="prop-tooltip" role="status" aria-live="polite" aria-hidden="true">
+          <span class="tooltip-kicker">A curious bit of magic</span>
+          <strong></strong>
+          <p></p>
+        </aside>
+
+        <img class="foreground" src="/meadow-foreground-v2.png" alt="" aria-hidden="true" />
+        <div class="grain" aria-hidden="true"></div>
+
+        <div class="scroll-cue" aria-hidden="true">
+          <span>Scroll to wander</span>
+          <i><b></b></i>
+        </div>
+
+        <div class="scroll-progress" aria-hidden="true"><i></i></div>
+      </div>
+
+      <span id="about" class="story-marker marker-about" aria-hidden="true"></span>
+      <span id="gallery" class="story-marker marker-gallery" aria-hidden="true"></span>
+      <span id="weasleys" class="story-marker marker-weasleys" aria-hidden="true"></span>
+      <span id="visit" class="story-marker marker-visit" aria-hidden="true"></span>
+      <span id="owl-post" class="story-marker marker-post" aria-hidden="true"></span>
+    </main>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
