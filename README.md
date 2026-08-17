@@ -1,6 +1,7 @@
 # The Burrow — Scroll Story
 
 An interactive, scroll-driven Three.js tribute to the wonderfully crooked Weasley home.
+<img width="1535" height="1024" alt="Key visiual" src="https://github.com/user-attachments/assets/fff78a0b-ebdc-4ecc-b086-1fa2975ab2bb" />
 
 The scene combines an animated 3D model, cinematic camera movement, layered countryside artwork, and typographic transitions that unfold as you scroll.
 
