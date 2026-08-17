@@ -35,6 +35,7 @@
   --fg-scale: 1.04;
   --headline-decor-shift: 0vh;
   --headline-decor-opacity: 1;
+  --headline-glow-scroll-opacity: 1;
   --model-shift: 0vh;
   --model-scale: 1;
   --scroll-cue-opacity: 1;
@@ -121,17 +122,27 @@ button:focus-visible {
   background-image: url("/sunset-background.png");
   background-position: 50% 50%;
   background-size: cover;
-  filter: saturate(1.13) brightness(1.06) contrast(1.03);
+  filter: saturate(1.16) brightness(1.12) contrast(0.98);
   transform: translate3d(0, var(--bg-shift), 0) scale(1.02);
   will-change: transform;
+}
+
+.backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 52% 79%, rgba(255, 173, 72, 0.17), transparent 48%),
+    linear-gradient(to bottom, transparent 58%, rgba(192, 105, 35, 0.08) 100%);
+  mix-blend-mode: screen;
 }
 
 .vignette {
   z-index: 18;
   inset: 0;
   background:
-    linear-gradient(to bottom, rgba(4, 8, 13, 0.3), transparent 25%, transparent 74%, rgba(5, 8, 10, 0.16)),
-    radial-gradient(ellipse at center, transparent 46%, rgba(3, 7, 11, 0.24) 100%);
+    linear-gradient(to bottom, rgba(4, 8, 13, 0.27), transparent 25%, transparent 74%, rgba(5, 8, 10, 0.07)),
+    radial-gradient(ellipse at center, transparent 48%, rgba(3, 7, 11, 0.2) 100%);
 }
 
 .magic-dust {
@@ -259,17 +270,27 @@ button:focus-visible {
 
 .hero-copy {
   position: absolute;
-  z-index: 4;
-  top: clamp(112px, 16.4vh, 132px);
+  z-index: 1;
+  top: clamp(140px, 18.8vh, 166px);
   left: 50%;
   width: min(96vw, 1200px);
   color: var(--gold);
+  opacity: 0;
   pointer-events: none;
   text-align: center;
   transform: translate3d(-50%, 0, 0);
+  visibility: hidden;
+  transition: opacity 320ms ease, visibility 0s linear 320ms;
+}
+
+.headline-ready .hero-copy {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 420ms ease, visibility 0s;
 }
 
 .hero-copy h1 {
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -277,7 +298,7 @@ button:focus-visible {
   gap: 0.035em;
   margin: 0;
   font-family: "Great Vibes", "Snell Roundhand", cursive;
-  font-size: clamp(5.8rem, 7.9vw, 8rem);
+  font-size: clamp(6.25rem, 8.6vw, 8.8rem);
   font-weight: 400;
   letter-spacing: -0.025em;
   line-height: 0.72;
@@ -287,6 +308,90 @@ button:focus-visible {
     0 0 12px rgba(255, 198, 101, 0.34),
     0 0 34px rgba(231, 145, 39, 0.28),
     0 8px 32px rgba(3, 8, 14, 0.32);
+}
+
+.headline-glow {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: inherit;
+  z-index: 1;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  opacity: var(--headline-glow-scroll-opacity);
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.headline-glow .headline-letter {
+  background: linear-gradient(
+    112deg,
+    rgba(255, 197, 93, 0.22) 18%,
+    rgba(255, 241, 201, 0.92) 44%,
+    #fffdeb 52%,
+    rgba(255, 207, 119, 0.64) 72%
+  );
+  background-position: 145% 50%;
+  background-size: 240% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 9px rgba(255, 217, 138, 0.52));
+  opacity: 0;
+}
+
+.headline-ready .headline-glow .headline-letter {
+  animation: headline-glow-letter 1.05s calc(0.52s + var(--glow-index) * 0.065s) ease-out 1 both;
+}
+
+.story-quote {
+  position: absolute;
+  z-index: 1;
+  top: clamp(130px, 16.8vh, 174px);
+  left: 50%;
+  width: min(98vw, 1600px);
+  margin: 0;
+  color: #f4c878;
+  font-family: "Great Vibes", "Snell Roundhand", cursive;
+  pointer-events: none;
+  text-align: center;
+  text-shadow:
+    0 1px 0 rgba(255, 232, 175, 0.22),
+    0 0 12px rgba(255, 198, 101, 0.34),
+    0 0 34px rgba(231, 145, 39, 0.28),
+    0 8px 32px rgba(3, 8, 14, 0.32);
+  transform: translate3d(-50%, 0, 0);
+}
+
+.story-quote p {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.24em;
+  margin: 0;
+  font-size: clamp(3.4rem, 4.65vw, 5.2rem);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 0.72;
+}
+
+.story-quote-clause {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.09em;
+  white-space: nowrap;
+}
+
+.story-quote-clause-light {
+  color: #f4c878;
+  font-family: "Snell Roundhand", "Great Vibes", cursive;
+  font-weight: 400;
 }
 
 .headline-word {
@@ -366,12 +471,12 @@ button:focus-visible {
 
 .model-wrap {
   position: absolute;
-  z-index: 5;
+  z-index: 6;
   top: auto;
-  bottom: 2%;
+  bottom: -0.5%;
   left: 50%;
-  width: min(49vw, 700px);
-  height: 77%;
+  width: min(56.35vw, 805px);
+  height: 88.55%;
   filter: drop-shadow(0 26px 24px rgba(2, 6, 8, 0.55));
   transform: translate3d(-50%, var(--model-shift), 0) scale(var(--model-scale));
   transform-origin: 50% 64%;
@@ -632,7 +737,7 @@ button:focus-visible {
   object-fit: cover;
   object-position: 50% 50%;
   pointer-events: none;
-  filter: saturate(1.12) brightness(1.07);
+  filter: saturate(1.16) brightness(0.62) contrast(0.97);
   transform: translate3d(0, var(--fg-shift), 0) scale(var(--fg-scale));
   transform-origin: 50% 100%;
   will-change: transform;
@@ -733,6 +838,26 @@ button:focus-visible {
   50% { filter: drop-shadow(0 0 9px rgba(255, 176, 65, 0.95)); }
 }
 
+@keyframes headline-glow-letter {
+  0% {
+    background-position: 145% 50%;
+    opacity: 0;
+  }
+  32% {
+    opacity: 0.42;
+  }
+  52% {
+    opacity: 1;
+  }
+  76% {
+    opacity: 0.34;
+  }
+  100% {
+    background-position: -45% 50%;
+    opacity: 0;
+  }
+}
+
 @keyframes scroll-drop {
   0% { opacity: 0; transform: translate(-50%, 0); }
   24% { opacity: 1; }
@@ -750,11 +875,11 @@ button:focus-visible {
   }
 
   .model-wrap {
-    width: min(62vw, 670px);
+    width: min(71.3vw, 771px);
   }
 
   .hero-copy h1 {
-    font-size: clamp(5rem, 11vw, 6.5rem);
+    font-size: clamp(5.35rem, 11.8vw, 7rem);
   }
 
   .flying-car {
@@ -775,11 +900,11 @@ button:focus-visible {
 
 @media (min-width: 761px) and (max-aspect-ratio: 4 / 5) {
   .hero-copy {
-    top: clamp(102px, 13vh, 132px);
+    top: clamp(130px, 15.8vh, 160px);
   }
 
   .model-wrap {
-    width: min(74vw, 700px);
+    width: min(85.1vw, 805px);
   }
 }
 
@@ -814,13 +939,27 @@ button:focus-visible {
   }
 
   .hero-copy {
-    top: 82px;
+    top: 100px;
     width: 98vw;
   }
 
   .hero-copy h1 {
     gap: 0.02em;
-    font-size: clamp(3rem, 14.5vw, 6rem);
+    font-size: clamp(3.25rem, 15.5vw, 6.35rem);
+  }
+
+  .story-quote {
+    top: 136px;
+    width: 96vw;
+  }
+
+  .story-quote p {
+    gap: 0.2em;
+    font-size: clamp(1.48rem, 5.9vw, 2.02rem);
+  }
+
+  .story-quote-clause {
+    gap: 0.07em;
   }
 
   .title-flourish {
@@ -831,8 +970,8 @@ button:focus-visible {
   .model-wrap {
     top: auto;
     bottom: 0;
-    width: 98vw;
-    height: 80%;
+    width: 112.7vw;
+    height: 92%;
   }
 
   .prop-tooltip {

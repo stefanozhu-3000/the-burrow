@@ -1,6 +1,8 @@
-# The Burrow — scroll story
+# The Burrow — Scroll Story
 
-A scroll-driven Three.js landing page built from the supplied Burrow model and countryside artwork.
+An interactive, scroll-driven Three.js tribute to the wonderfully crooked Weasley home.
+
+The scene combines an animated 3D model, cinematic camera movement, layered countryside artwork, and typographic transitions that unfold as you scroll.
 
 ## Run locally
 
@@ -18,4 +20,12 @@ npm run build
 npm run preview
 ```
 
-The source model is preserved at the project root. The web-ready copy in `public/burrow.glb` uses Meshopt geometry compression and 2K WebP textures.
+The current scene loads `new2.glb` from the project root.
+
+## Built with
+
+- Three.js
+- Vite
+- Vanilla JavaScript and CSS
+
+This is an unofficial fan-made project created for creative and educational purposes.

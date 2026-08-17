@@ -3,6 +3,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 
+const BURROW_MODEL_URL = new URL("./new2.glb", import.meta.url).href;
+
 const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
 const mix = (from, to, amount) => from + (to - from) * amount;
 const smoothstep = (from, to, value) => {
@@ -22,6 +24,7 @@ const loaderElement = document.querySelector(".model-loader");
 const loaderBar = document.querySelector(".loader-track i");
 const loaderCopy = document.querySelector(".loader-copy");
 const modelError = document.querySelector(".model-error");
+const heroCopy = document.querySelector(".hero-copy");
 const headline = document.querySelector("#hero-title");
 const propButtons = [...document.querySelectorAll(".flying-prop")];
 const propTooltip = document.querySelector(".prop-tooltip");
@@ -29,30 +32,56 @@ const tooltipTitle = propTooltip.querySelector("strong");
 const tooltipStory = propTooltip.querySelector("p");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-const headlineLabel = headline.textContent.trim();
-const headlineLetters = [];
-headline.setAttribute("aria-label", headlineLabel);
-headline.textContent = "";
-headlineLabel.split(/\s+/).forEach((word, wordIndex, words) => {
-  const wordElement = document.createElement("span");
-  wordElement.className = "headline-word";
-  wordElement.setAttribute("aria-hidden", "true");
+function splitHeadlineText(element, extraLetterClass = "") {
+  const label = element.textContent.trim();
+  const letters = [];
+  element.setAttribute("aria-label", label);
+  element.textContent = "";
 
-  [...word].forEach((character) => {
-    const letter = document.createElement("span");
-    letter.className = "headline-letter";
-    letter.textContent = character;
-    wordElement.append(letter);
-    headlineLetters.push(letter);
+  label.split(/\s+/).forEach((word, wordIndex, words) => {
+    const wordElement = document.createElement("span");
+    wordElement.className = "headline-word";
+    wordElement.setAttribute("aria-hidden", "true");
+
+    [...word].forEach((character) => {
+      const letter = document.createElement("span");
+      letter.className = `headline-letter${extraLetterClass ? ` ${extraLetterClass}` : ""}`;
+      letter.textContent = character;
+      wordElement.append(letter);
+      letters.push(letter);
+    });
+
+    element.append(wordElement);
+    if (wordIndex < words.length - 1) element.append(" ");
   });
 
-  headline.append(wordElement);
-  if (wordIndex < words.length - 1) headline.append(" ");
+  return letters;
+}
+
+const headlineLetters = splitHeadlineText(headline);
+const quoteLetters = [...document.querySelectorAll(".story-quote-clause")].flatMap((clause) => {
+  const letters = splitHeadlineText(clause, "story-quote-letter");
+  clause.setAttribute("aria-hidden", "true");
+  return letters;
 });
+
+const headlineGlow = document.createElement("span");
+headlineGlow.className = "headline-glow";
+headlineGlow.setAttribute("aria-hidden", "true");
+headlineGlow.innerHTML = headline.innerHTML;
+headlineGlow.querySelectorAll(".headline-letter").forEach((letter, index) => {
+  letter.style.setProperty("--glow-index", index);
+});
+headline.append(headlineGlow);
 
 const MODEL_HEIGHT = 3.12;
 const MODEL_FLOOR_Y = -1.76;
 const MODEL_BOTTOM_NDC = -0.89;
+const MODEL_BASE_YAW = THREE.MathUtils.degToRad(15);
+const CAMERA_VERTICAL_FOV = 16.1;
+const CAMERA_DISTANCE_MOBILE = 14.25;
+const CAMERA_DISTANCE_DESKTOP = 12.66;
+const CAMERA_LOW_ANGLE_DROP = 1.25;
 
 const renderer = new THREE.WebGLRenderer({
   canvas,
@@ -67,7 +96,7 @@ renderer.toneMappingExposure = 0.84;
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
 
 const threeScene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(CAMERA_VERTICAL_FOV, 1, 0.1, 100);
 const modelPivot = new THREE.Group();
 threeScene.add(modelPivot);
 
@@ -178,15 +207,25 @@ let rawScrollProgress = 0;
 let scrollProgress = 0;
 let pointerX = 0;
 let pointerY = 0;
-let modelYaw = 0;
+let modelYaw = MODEL_BASE_YAW;
 let modelPitch = 0;
 let lastFrame = performance.now();
 
 const gltfLoader = new GLTFLoader();
 gltfLoader.setMeshoptDecoder(MeshoptDecoder);
 
+let headlineRevealFallback = null;
+
+function revealInitialHeadline() {
+  if (sceneElement.classList.contains("headline-ready")) return;
+  if (headlineRevealFallback) window.clearTimeout(headlineRevealFallback);
+  heroCopy.hidden = false;
+  heroCopy.getBoundingClientRect();
+  sceneElement.classList.add("headline-ready");
+}
+
 gltfLoader.load(
-  "/burrow-v2.glb",
+  BURROW_MODEL_URL,
   (gltf) => {
     burrowModel = gltf.scene;
     burrowModel.traverse((child) => {
@@ -210,8 +249,17 @@ gltfLoader.load(
     burrowModel.position.set(-scaledCenter.x, -scaledBox.min.y + MODEL_FLOOR_Y, -scaledCenter.z);
     modelPivot.add(burrowModel);
 
-    loaderElement.classList.add("is-hidden");
+    canvas.addEventListener(
+      "transitionend",
+      (event) => {
+        if (event.propertyName === "opacity") revealInitialHeadline();
+      },
+      { once: true },
+    );
+
     sceneElement.classList.add("model-ready");
+    loaderElement.classList.add("is-hidden");
+    headlineRevealFallback = window.setTimeout(revealInitialHeadline, 900);
   },
   (event) => {
     if (!event.total) {
@@ -226,6 +274,7 @@ gltfLoader.load(
     console.error("Could not load The Burrow model", error);
     loaderElement.classList.add("is-hidden");
     modelError.hidden = false;
+    revealInitialHeadline();
   },
 );
 
@@ -240,11 +289,11 @@ function updateResponsiveCamera() {
   const height = Math.max(rect.height, 1);
   const viewportAspect = window.innerWidth / Math.max(window.innerHeight, 1);
   const framing = smoothstep(0.58, 1.6, viewportAspect);
-  const cameraDistance = mix(7.5, 6.65, framing);
+  const cameraDistance = mix(CAMERA_DISTANCE_MOBILE, CAMERA_DISTANCE_DESKTOP, framing);
   const projectionHalfHeight = cameraDistance * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5));
   const cameraTargetY = MODEL_FLOOR_Y - MODEL_BOTTOM_NDC * projectionHalfHeight;
   camera.aspect = width / height;
-  camera.position.set(0, cameraTargetY, cameraDistance);
+  camera.position.set(0, cameraTargetY - CAMERA_LOW_ANGLE_DROP, cameraDistance);
   camera.lookAt(0, cameraTargetY, 0);
   camera.updateProjectionMatrix();
   renderer.setSize(width, height, false);
@@ -271,6 +320,7 @@ function updateLayerVariables(progress) {
   const decorationOut = smoothstep(0.055, 0.24, progress);
   sceneElement.style.setProperty("--headline-decor-shift", `${decorationOut * -2.4}vh`);
   sceneElement.style.setProperty("--headline-decor-opacity", (1 - decorationOut).toFixed(4));
+  sceneElement.style.setProperty("--headline-glow-scroll-opacity", clamp(1 - progress * 10).toFixed(4));
   sceneElement.style.setProperty("--model-shift", `${gentle * -1.1}vh`);
   sceneElement.style.setProperty("--model-scale", (1 - gentle * 0.018).toFixed(4));
   sceneElement.style.setProperty("--scroll-cue-opacity", clamp(1 - progress * 4).toFixed(4));
@@ -282,6 +332,17 @@ function updateLayerVariables(progress) {
     letter.style.setProperty("--letter-shift", `${letterOut * -1.08}em`);
     letter.style.setProperty("--letter-opacity", (1 - letterOut).toFixed(4));
     letter.style.setProperty("--letter-blur", `${letterOut * 3.5}px`);
+  });
+
+  quoteLetters.forEach((letter, index) => {
+    const delay = prefersReducedMotion.matches ? 0 : index * 0.0035;
+    const letterIn = smoothstep(0.18 + delay, 0.3 + delay, progress);
+    const opacity = letterIn;
+    const shift = mix(0.82, 0, letterIn);
+    const blur = (1 - letterIn) * 3.5;
+    letter.style.setProperty("--letter-shift", `${shift}em`);
+    letter.style.setProperty("--letter-opacity", opacity.toFixed(4));
+    letter.style.setProperty("--letter-blur", `${blur}px`);
   });
 
   sceneElement.style.setProperty("--car-x", `${mix(20, 0.25, carIn)}vw`);
@@ -363,7 +424,7 @@ propButtons.forEach((prop) => {
 
 function updateModel(progress) {
   const turn = smoothstep(0.03, 0.96, progress);
-  const targetYaw = turn * 1.28 + pointerX * 0.035 * turn;
+  const targetYaw = MODEL_BASE_YAW + turn * 1.28 + pointerX * 0.035 * turn;
   const targetPitch = Math.sin(turn * Math.PI) * 0.008 + pointerY * 0.012 * turn;
   modelYaw = mix(modelYaw, targetYaw, 0.082);
   modelPitch = mix(modelPitch, targetPitch, 0.07);
