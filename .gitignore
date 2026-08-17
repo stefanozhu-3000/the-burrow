@@ -6,3 +6,10 @@ dist/
 .env.*
 !.env.example
 
+# Local source material and visual QA outputs
+/ChatGPT Image*
+/comparison-*.png
+/new-model-*.png
+/qa/
+/demo.mov
+/new3.glb
