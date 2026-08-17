@@ -5,7 +5,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/stefano3000/house.git"
+    "url": "https://github.com/stefano3000/the-burrow.git"
   },
   "scripts": {
     "dev": "vite",
