@@ -63,7 +63,7 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setClearColor(0x000000, 0);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.92;
+renderer.toneMappingExposure = 0.84;
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
 
 const threeScene = new THREE.Scene();
@@ -82,13 +82,9 @@ const moonFill = new THREE.DirectionalLight(0x6c8cae, 2.2);
 moonFill.position.set(-4.5, 3, 2.4);
 threeScene.add(moonFill);
 
-const windowGlow = new THREE.PointLight(0xff8d3c, 4.2, 9, 1.65);
+const windowGlow = new THREE.PointLight(0xff802e, 2.8, 9, 1.65);
 windowGlow.position.set(0.4, -0.4, 2.8);
 threeScene.add(windowGlow);
-
-const hearthFill = new THREE.PointLight(0xffaf62, 1.65, 7, 1.7);
-hearthFill.position.set(-1.4, -1.15, 3.4);
-threeScene.add(hearthFill);
 
 function createGlowTexture() {
   const glowCanvas = document.createElement("canvas");
@@ -143,36 +139,6 @@ const magicTrailLine = new THREE.Line(magicTrailGeometry, magicTrailMaterial);
 magicTrailGroup.add(magicTrailLine);
 
 const glowTexture = createGlowTexture();
-
-const windowLights = [
-  { position: [0, 0.84, 0.72], scale: 0.14, opacity: 0.78 },
-  { position: [0.15, 0.5, 0.76], scale: 0.16, opacity: 0.72 },
-  { position: [-0.36, 0.2, 0.7], scale: 0.14, opacity: 0.64 },
-  { position: [0.03, -0.4, 0.78], scale: 0.15, opacity: 0.72 },
-  { position: [-0.24, -1.4, 0.64], scale: 0.17, opacity: 0.58 },
-  { position: [0.05, -1.43, 0.78], scale: 0.18, opacity: 0.7 },
-  { position: [0.38, -1.41, 0.62], scale: 0.16, opacity: 0.58 },
-];
-
-const windowLightGroup = new THREE.Group();
-windowLights.forEach(({ position, scale, opacity }) => {
-  const material = new THREE.SpriteMaterial({
-    color: 0xffb85f,
-    map: glowTexture,
-    transparent: true,
-    opacity,
-    blending: THREE.AdditiveBlending,
-    depthTest: true,
-    depthWrite: false,
-  });
-  material.toneMapped = false;
-  const light = new THREE.Sprite(material);
-  light.position.set(...position);
-  light.scale.setScalar(scale);
-  windowLightGroup.add(light);
-});
-modelPivot.add(windowLightGroup);
-
 const magicSparkMaterial = new THREE.PointsMaterial({
   color: 0xffd27c,
   map: glowTexture,
@@ -226,17 +192,10 @@ gltfLoader.load(
     burrowModel.traverse((child) => {
       if (!child.isMesh) return;
       child.frustumCulled = true;
-      if (!child.material) return;
-      const materials = Array.isArray(child.material) ? child.material : [child.material];
-      materials.forEach((material) => {
-        material.envMapIntensity = 0.52;
-        if (material.map && material.emissive) {
-          material.emissive.set(0x6b2b0b);
-          material.emissiveMap = material.map;
-          material.emissiveIntensity = 0.28;
-        }
-        material.needsUpdate = true;
-      });
+      if (child.material) {
+        child.material.envMapIntensity = 0.48;
+        child.material.needsUpdate = true;
+      }
     });
 
     burrowModel.updateMatrixWorld(true);
